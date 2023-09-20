@@ -1,28 +1,21 @@
-import './App.css';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'; // Değişiklik burada
+import HomePage from './components/Homepage'; // Dosya adı düzeltilmiş
+import LoginPage from './components/LoginPage';
+import PostList from './components/PostList';
+import Dashboard from './components/Dashboard';
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src="Octocat.png" className="App-logo" alt="logo" />
-        <p>
-          GitHub Codespaces <span className="heart">♥️</span> React
-        </p>
-        <p className="small">
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </p>
-      </header>
-    </div>
+    <Router>
+      <Routes> {/* Değişiklik burada */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/posts" component={PostList} />
+      </Routes> {/* Değişiklik burada */}
+    </Router>
   );
 }
 
