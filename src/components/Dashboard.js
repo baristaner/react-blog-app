@@ -1,5 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useCallback } from 'react';
 import { Container, Card, Form, Button, Table, Modal } from 'react-bootstrap';
 import axios from 'axios';
 
@@ -9,7 +9,6 @@ function Dashboard() {
   const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
-    // API'den verileri çekmek için bir istek gönderin
     axios.get('http://localhost:3000/posts/all')
       .then((response) => {
         setPosts(response.data);
@@ -19,40 +18,31 @@ function Dashboard() {
       });
   }, []);
 
-  const handleEdit = (post) => {
-    setSelectedPost(post);
-    setShowEditModal(true);
-  };
-
-  const handleCloseEditModal = () => {
-    setSelectedPost(null);
-    setShowEditModal(false);
-  };
-
-  const handleUpdatePost = () => {
-    if (selectedPost) {
-      const updatedPostData = {
-        title: selectedPost.title,
-        content: selectedPost.content,
-      };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
   
-      axios
-        .put(`http://localhost:3000/posts/updatepost/${selectedPost._id}`, updatedPostData)
-        .then((response) => {
-          console.log('Post updated successfully:', response.data);
-          handleCloseEditModal(); // Modalı kapat
-        })
-        .catch((error) => {
-          console.error('Post update error:', error);
-          // Hata durumunda kullanıcıya bilgi verilebilir
-        });
+    try {
+      const response = await axios.post('http://localhost:3000/admin/addpost', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
+      if (response.status === 201) {
+        // Başarılı post ekleme işlemi
+        // Formu temizleme veya başka bir işlem yapma
+        console.log('Post başarıyla eklendi.');
+        e.target.reset(); // Formu temizleme
+      } else {
+        // Hata durumunda
+        console.error('Post ekleme hatası:', response.data.error);
+      }
+    } catch (error) {
+      console.error('Post ekleme hatası:', error);
     }
   };
-  
-  
-  
-  
-  
+
   return (
     <Container className="mt-5">
       <h1>Welcome to Admin Dashboard</h1>
@@ -61,7 +51,7 @@ function Dashboard() {
       <Card className="mb-3">
         <Card.Header>Add New Post</Card.Header>
         <Card.Body>
-          <Form action="/admin/addpost" method="POST">
+          <Form onSubmit={handleSubmit}>
             <Form.Group controlId="title">
               <Form.Label>Title</Form.Label>
               <Form.Control type="text" name="title" required />
@@ -69,10 +59,15 @@ function Dashboard() {
             <Form.Group controlId="content">
               <Form.Label>Content</Form.Label>
               <Form.Control as="textarea" name="content" required />
+              <Form.Group controlId="image">
+            </Form.Group>
+           <Form.Label>Image</Form.Label>
+              <Form.Control type="file" name="image" accept="image/*" />
             </Form.Group>
             <Button variant="primary" type="submit">
               Add Post
             </Button>
+            
           </Form>
         </Card.Body>
       </Card>
@@ -85,7 +80,6 @@ function Dashboard() {
               <tr>
                 <th>Title</th>
                 <th>Content</th>
-                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -93,17 +87,7 @@ function Dashboard() {
                 <tr key={post._id}>
                   <td>{post.title}</td>
                   <td>{post.content}</td>
-                  <td>
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      className="edit-button"
-                      onClick={() => handleEdit(post)}
-                    >
-                      Edit
-                    </Button>
-                    {/* ... */}
-                  </td>
+                 
                 </tr>
               ))}
             </tbody>
@@ -111,43 +95,6 @@ function Dashboard() {
         </Card.Body>
       </Card>
 
-      <Modal show={showEditModal} onHide={handleCloseEditModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Edit Post</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedPost && (
-            <Form>
-              <Form.Group controlId="editTitle">
-                <Form.Label>Title</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="post_title"
-                  value={selectedPost.title}
-                  onChange={(e) => setSelectedPost({ ...selectedPost, title: e.target.value })}
-                />
-              </Form.Group>
-              <Form.Group controlId="editContent">
-                <Form.Label>Content</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  name="post_content"
-                  value={selectedPost.content}
-                  onChange={(e) => setSelectedPost({ ...selectedPost, content: e.target.value })}
-                />
-              </Form.Group>
-            </Form>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseEditModal}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={handleUpdatePost}>
-            Update Post
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </Container>
   );
 }

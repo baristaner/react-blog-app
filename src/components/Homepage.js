@@ -8,7 +8,6 @@ function HomePage() {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6">Blog Uygulaması</Typography>
-          <Button color="inherit">Giriş Yap</Button>
         </Toolbar>
       </AppBar>
       <Container>
