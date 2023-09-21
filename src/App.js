@@ -24,6 +24,7 @@ const theme = createTheme({
   typography: {
     fontFamily: 'Roboto, sans-serif',
   },
+  spacing: 4,
 });
 
 
@@ -39,7 +40,6 @@ function App() {
           <Route path="/post/:id" element={<PostDetails />} />
           <Route path="/edit/:postId" element={<EditPost />} />
           <Route path="/posts" component={PostList} />
-          
         </Routes>
       </Router>
     </ThemeProvider>

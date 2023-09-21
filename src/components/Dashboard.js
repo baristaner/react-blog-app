@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Container, Card, Form, Button, Table, Modal } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import Navbar from './Navbar';
 
 function Dashboard() {
   const [posts, setPosts] = useState([]);
@@ -74,6 +75,8 @@ function Dashboard() {
   };
 
   return (
+    <>
+    <Navbar/>
     <Container className="mt-5">
       <h1>Welcome to Admin Dashboard</h1>
       <Button variant="danger" onClick={handleLogout}>
@@ -135,6 +138,7 @@ function Dashboard() {
         </Card.Body>
       </Card>
     </Container>
+    </>
   );
 }
 

@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { TextField, TextareaAutosize, Button, Container, Typography } from '@mui/material';
+import Navbar from './Navbar';
 
 function EditPost() {
   const { postId } = useParams();
   const [post, setPost] = useState({ title: '', content: '' });
+  const jwt = localStorage.getItem("blog_auth");
 
   useEffect(() => {
     fetch(`http://localhost:3000/admin/edit/${postId}`)
@@ -25,12 +28,12 @@ function EditPost() {
   };
 
   const handleUpdatePost = () => {
-    fetch(`http://localhost:3000/admin/editpost/${postId}`, {
-      method: 'PUT', 
+    fetch(`http://localhost:3000/updatepost?id=${postId}&title=${post.title}&content=${post.content}`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${jwt}`,
       },
-      body: JSON.stringify(post),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -42,27 +45,33 @@ function EditPost() {
   };
 
   return (
-    <div>
-      <h1>Edit Post</h1>
-      <div>
-        <label>Title:</label>
-        <input
-          name="title"
-          type="text"
-          id="title"
+    <>
+    <Navbar />
+    <Container style={{paddingTop:"10px"}}>
+      <Typography variant="h4" component="h1" gutterBottom>
+        Edit Post
+      </Typography>
+      <form>
+        <TextField
+          label="Title"
+          fullWidth
           value={post.title}
           onChange={handleTitleChange}
         />
-      </div>
-      <div>
-        <label>Content:</label>
-        <textarea
-          value={post.content}
-          onChange={handleContentChange}
-        />
-      </div>
-      <button onClick={handleUpdatePost}>Update Post</button>
-    </div>
+        <TextareaAutosize
+  label="Content"
+  fullWidth
+  minRows={5}
+  value={post.content}
+  onChange={handleContentChange}
+  style={{ width: '100%'}}
+/>
+      </form>
+        <Button variant="contained" color="primary" onClick={handleUpdatePost}>
+          Update Post
+        </Button>
+    </Container>
+    </>
   );
 }
 

@@ -10,6 +10,7 @@ import {
   Button,
   CircularProgress,
 } from "@mui/material";
+import Navbar from './Navbar';
 
 function PostDetails() {
   const { id } = useParams();
@@ -50,15 +51,18 @@ function PostDetails() {
   }
 
   return (
-    <Container maxWidth="md">
+    <>
+    <Navbar />
+    <Container maxWidth="md" style={{paddingTop:"10px"}}>
       <Card
-        style={{ height: "100%", display: "flex", flexDirection: "column" }}
+        style={{ height: "100%",width:"100%", display: "flex", flexDirection: "column" }}
       >
         <CardMedia
           component="img"
           height="200"
           image={`http://localhost:3000/${post.imagePath}`}
           alt={post.title}
+          sx={{ objectFit: 'cover' }}
         />
         <CardContent style={{ flexGrow: 1 }}>
           <Typography variant="h5" component="div">
@@ -75,6 +79,7 @@ function PostDetails() {
         </div>
       </Card>
     </Container>
+    </>
   );
 }
 
