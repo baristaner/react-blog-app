@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TextField, Button, Container } from '@mui/material';
-import axios from 'axios'; // Axios'ı import edin
+import axios from 'axios'; 
 import { useNavigate } from 'react-router-dom';
 
 
@@ -17,20 +17,16 @@ function LoginPage() {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:3000/login', formData); // Backend ile iletişim kurun
+      const response = await axios.post('http://localhost:3000/login', formData); 
 
-      // Başarılı giriş sonrası JWT'yi alın
       const { token } = response.data;
       console.log(token);
       localStorage.setItem("blog_auth",token);
 
-      navigate('/');
+      navigate('/dashboard');
 
-      // JWT'yi kullanarak kullanıcıyı oturum açık olarak işaretleyin
-      // Bu işlemi yerel depolama, oturum saklama veya Redux gibi bir yöntemle yapabilirsiniz.
     } catch (error) {
       console.error('Giriş başarısız:', error);
-      // Hata durumunda kullanıcıya uygun bir hata mesajı gösterilebilir
     }
   };
 

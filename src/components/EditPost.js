@@ -1,74 +1,69 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Container, Form, Button } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 
-
-
-function EditPostPage() {
-  const { id } = useParams(); // id parametresini al
+function EditPost() {
+  const { postId } = useParams();
   const [post, setPost] = useState({ title: '', content: '' });
 
   useEffect(() => {
-    // Belirli bir postu çekmek için API isteği gönderin
-    axios.get(`http://localhost:3000/posts/${id}`)
-      .then((response) => {
-        setPost(response.data);
+    fetch(`http://localhost:3000/admin/edit/${postId}`)
+      .then((response) => response.json())
+      .then((data) => {
+        setPost(data);
       })
       .catch((error) => {
-        console.error('Veri çekme hatası:', error);
+        console.error('Error fetching post:', error);
       });
-  }, [id]);
+  }, [postId]);
 
-  const handleEditPost = async () => {
-    console.log(post);
-    try {
-      const response = await axios.post(`http://localhost:3000/admin/updatepost/${id}`, {
-        title: post.title,
-        content: post.content,
-      });
-  
-      if (response.status === 200) {
-        console.log('Post updated:', response.data);
-        // Düzenleme işlemi tamamlandığında başka bir sayfaya yönlendirme yapabilirsiniz
-      } else {
-        console.error('Post update error:', response.statusText);
-      }
-    } catch (error) {
-      console.error('REQUEST ERROR:', error);
-    }
+  const handleTitleChange = (e) => {
+    setPost({ ...post, title: e.target.value });
   };
-  
+
+  const handleContentChange = (e) => {
+    setPost({ ...post, content: e.target.value });
+  };
+
+  const handleUpdatePost = () => {
+    fetch(`http://localhost:3000/admin/editpost/${postId}`, {
+      method: 'PUT', 
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(post),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('Post updated:', data);
+      })
+      .catch((error) => {
+        console.error('Error updating post:', error);
+      });
+  };
 
   return (
-    <Container className="mt-5">
+    <div>
       <h1>Edit Post</h1>
-      <Form>
-        <Form.Group controlId="title">
-          <Form.Label>Title</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="Enter title"
-            value={post.title}
-            onChange={(e) => setPost((v) => ({ ...v, title: e.target.value }))}
-          />
-        </Form.Group>
-        <Form.Group controlId="content">
-          <Form.Label>Content</Form.Label>
-          <Form.Control
-            as="textarea"
-            rows={4}
-            placeholder="Enter content"
-            value={post.content}
-            onChange={(e) => setPost((v) => ({ ...v, content: e.target.value }))}
-          />
-        </Form.Group>
-        <Button variant="primary" onClick={handleEditPost}>
-          Update Post
-        </Button>
-      </Form>
-    </Container>
+      <div>
+        <label>Title:</label>
+        <input
+          name="title"
+          type="text"
+          id="title"
+          value={post.title}
+          onChange={handleTitleChange}
+        />
+      </div>
+      <div>
+        <label>Content:</label>
+        <textarea
+          value={post.content}
+          onChange={handleContentChange}
+        />
+      </div>
+      <button onClick={handleUpdatePost}>Update Post</button>
+    </div>
   );
 }
 
-export default EditPostPage;
+export default EditPost;
