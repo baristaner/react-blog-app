@@ -10,6 +10,7 @@ import Dashboard from './components/Dashboard';
 import EditPost from './components/EditPost';
 import PostDetails from './components/PostDetails';
 import Profile from './components/Profile';
+import Search from './components/Search';
 
 const theme = createTheme({
   palette: {
@@ -43,6 +44,7 @@ function App() {
           <Route path="/post/:id" element={<PostDetails />} />
           <Route path="/edit/:postId" element={<EditPost />} />
           <Route path="/profile/:userId" element={<Profile />}/>
+          <Route path="/search" element={<Search />}/>
           <Route path="/posts" component={PostList} />
         </Routes>
       </Router>

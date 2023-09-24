@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Typography,
@@ -9,9 +8,13 @@ import {
   Grid,
   Button,
   CircularProgress,
+  Avatar,
+  CardHeader,
+  Skeleton,
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import PostSlider from "./PostSlider"; // Blog postları için slideshow
+import { Link } from "react-router-dom";
+import axios from "axios";
 
 const theme = createTheme({
   palette: {
@@ -38,29 +41,68 @@ function PostList() {
     // API'den postları çekme işlemi
     axios
       .get("http://localhost:3000/posts/all")
-      .then((response) => {
-        setPosts(response.data);
+      .then(async (response) => {
+        const postList = response.data;
+        const postsWithUserInfo = await Promise.all(
+          postList.map(async (post) => {
+            const userInfoResponse = await axios.get(
+              `http://localhost:3000/users/${post.author}`
+            );
+            const userInfo = userInfoResponse.data.user;
+            return { ...post, userInfo };
+          })
+        );
+        setPosts(postsWithUserInfo);
         setLoading(false);
       })
       .catch((error) => {
         console.error("Postlar alınamadı:", error);
         setLoading(true);
       });
+    console.log(posts);
   }, []);
 
   if (loading) {
-    // Veriler yüklenirken CircularProgress göster
+    // Veriler yüklenirken CircularProgress veya Skeleton göster
     return (
-      <Container
-        maxWidth="md"
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <CircularProgress />
+      <Container maxWidth="md">
+        <Typography variant="h2" component="div" gutterBottom></Typography>
+        <Grid container spacing={3}>
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Grid item key={index} xs={12} sm={6} md={4}>
+              <Card
+                style={{
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <CardHeader
+                  avatar={
+                    <Skeleton variant="circular" width={40} height={40} />
+                  }
+                  title={<Skeleton variant="text" />}
+                  subheader={<Skeleton variant="text" />}
+                />
+                <Skeleton variant="rectangular" height={200} />
+                <CardContent style={{ flexGrow: 1 }}>
+                  <Skeleton variant="text" />
+                  <Skeleton variant="text" />
+                  <Skeleton variant="text" />
+                </CardContent>
+                <div
+                  style={{
+                    marginBottom: "10px",
+                    paddingBottom: "10px",
+                    paddingLeft: "13px",
+                  }}
+                >
+                  <Skeleton variant="rectangular" height={36} />
+                </div>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
       </Container>
     );
   }
@@ -71,9 +113,6 @@ function PostList() {
 
   return (
     <ThemeProvider theme={theme}>
-      {/* <Grid item xs={15} sm={12} md={6}>
-  <PostSlider posts={posts} />
-</Grid> */}
       <Container maxWidth="md">
         <Typography variant="h2" component="div" gutterBottom></Typography>
         <Grid container spacing={3}>
@@ -86,6 +125,46 @@ function PostList() {
                   flexDirection: "column",
                 }}
               >
+                <CardHeader
+                  avatar={
+                    <Link
+                      to={`/profile/${post.userInfo._id}`}
+                      style={{ textDecoration: "none", color: "inherit" }}
+                    >
+                      <Avatar aria-label="user-avatar">
+                        {post.userInfo.profilePicture ? (
+                          <img
+                            src={`http://localhost:3000/${post.userInfo.profilePicture}`}
+                            alt={`${post.userInfo.username}'s Profile Picture`}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                            }}
+                          />
+                        ) : (
+                          <Typography variant="h7" component="div">
+                            <strong>
+                              {post.userInfo.username.charAt(0).toUpperCase()}
+                            </strong>
+                          </Typography>
+                        )}
+                      </Avatar>
+                    </Link>
+                  }
+                  title={
+                    <Link
+                      to={`/profile/${post.userInfo._id}`}
+                      style={{ textDecoration: "none", color: "inherit" }}
+                    >
+                      <Typography variant="h7" component="div">
+                        <strong>{post.userInfo.username}</strong>
+                      </Typography>
+                    </Link>
+                  }
+                  subheader={new Date(post.date).toLocaleDateString()}
+                />
+
                 <CardMedia
                   component="img"
                   height="200"
@@ -93,7 +172,7 @@ function PostList() {
                   alt={post.title}
                 />
                 <CardContent style={{ flexGrow: 1 }}>
-                  <Typography variant="h5" component="div">
+                  <Typography variant="h6" component="div">
                     {post.title}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
@@ -109,13 +188,11 @@ function PostList() {
                     paddingLeft: "13px",
                   }}
                 >
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    href={`/post/${post._id}`}
-                  >
-                    Devamını Oku
-                  </Button>
+                  <Link to={`/post/${post._id}`}>
+                    <Button variant="outlined" color="primary" fullWidth>
+                      Read More
+                    </Button>
+                  </Link>
                 </div>
               </Card>
             </Grid>

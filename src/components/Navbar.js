@@ -9,13 +9,18 @@ import {
   IconButton,
   Avatar,
   Skeleton,
+  InputBase,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import SearchIcon from "@mui/icons-material/Search";
+
+
 
 export default function Navbar() {
   const navigate = useNavigate();
   const [user, setUser] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const loggedIn = localStorage.getItem("blog_auth");
   const uid = localStorage.getItem("user_id");
 
@@ -31,7 +36,6 @@ export default function Navbar() {
         console.error("Error fetching user data:", error);
         setIsLoading(false);
       });
-    console.log(user);
   }, [uid]);
 
   const handleLoginClick = () => {
@@ -40,6 +44,10 @@ export default function Navbar() {
 
   const handleProfileButton = () => {
     navigate(`/profile/${uid}`);
+  };
+
+  const handleSearchClick = () => {
+    navigate("/search")
   };
 
   return (
@@ -93,6 +101,18 @@ export default function Navbar() {
                 Login
               </Button>
             )}
+
+            <div style={{ position: "relative",paddingBottom:"32px" }}>
+          
+              <IconButton
+                color="inherit"
+                onClick={handleSearchClick}
+                style={{ position: "absolute", right: 70, top: "50%", transform: "translateY(-50%)" }}
+              >
+                <SearchIcon />
+              </IconButton>
+              
+            </div>
           </Toolbar>
         </AppBar>
       </Box>
