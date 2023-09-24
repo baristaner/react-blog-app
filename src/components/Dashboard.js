@@ -21,14 +21,18 @@ function Dashboard() {
 
   const handleLogout = () => {
     localStorage.removeItem("blog_auth");
+    localStorage.removeItem("user_id");
     console.log("Logged Out");
   };
 
   const handleSubmit = async (e) => {
-    const jwt = localStorage.getItem("blog_auth");
     e.preventDefault();
     const formData = new FormData(e.target);
+    const jwt = localStorage.getItem("blog_auth");
+    const userId = localStorage.getItem("user_id"); 
 
+    formData.append('author', userId);
+  
     try {
       const response = await axios.post(
         "http://localhost:3000/admin/addpost",
@@ -38,11 +42,14 @@ function Dashboard() {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${jwt}`,
           },
+          params: {
+            author: userId, 
+          },
         }
       );
-
+  
       if (response.status === 201) {
-        console.log("Post added succesfully");
+        console.log("Post added successfully");
         e.target.reset();
       } else {
         console.error("addPost Error:", response.data.error);
@@ -51,6 +58,7 @@ function Dashboard() {
       console.error("addPost Error:", error);
     }
   };
+  
 
   const handleDeletePost = async (postId) => {
     try {

@@ -15,20 +15,30 @@ function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       const response = await axios.post('http://localhost:3000/login', formData); 
-
+  
       const { token } = response.data;
       console.log(token);
-      localStorage.setItem("blog_auth",token);
-
+      localStorage.setItem("blog_auth", token);
+  
+      const protectedResponse = await axios.get('http://localhost:3000/protected', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      const { userId } = protectedResponse.data;
+      console.log(userId);
+      localStorage.setItem("user_id", userId);
+  
       navigate('/dashboard');
-
     } catch (error) {
-      console.error('Giriş başarısız:', error);
+      console.error('Auth failed:', error);
     }
   };
+  
 
   return (
     <Container>

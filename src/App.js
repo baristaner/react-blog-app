@@ -4,10 +4,12 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import HomePage from './components/Homepage';
 import LoginPage from './components/LoginPage';
+import RegisterPage from './components/Register';
 import PostList from './components/PostList';
 import Dashboard from './components/Dashboard';
 import EditPost from './components/EditPost';
 import PostDetails from './components/PostDetails';
+import Profile from './components/Profile';
 
 const theme = createTheme({
   palette: {
@@ -36,9 +38,11 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/post/:id" element={<PostDetails />} />
           <Route path="/edit/:postId" element={<EditPost />} />
+          <Route path="/profile/:userId" element={<Profile />}/>
           <Route path="/posts" component={PostList} />
         </Routes>
       </Router>
