@@ -10,14 +10,20 @@ import {
   Avatar,
   Button,
   Skeleton,
+  IconButton,
 } from "@mui/material";
 import Navbar from "./Navbar";
 
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
+
 function Profile() {
   const { userId } = useParams();
+  const userIdToFollow = userId;
   const [user, setUser] = useState({});
   const [posts, setPosts] = useState([]);
-  const [isLoading, setIsLoading] = useState(true); // Add isLoading state
+  const [isLoading, setIsLoading] = useState(true); 
+  const currentauthUserId = localStorage.getItem("user_id");
 
   useEffect(() => {
     fetch(`http://localhost:3000/users/${userId}`)
@@ -25,22 +31,86 @@ function Profile() {
       .then((data) => {
         setUser(data.user);
         setPosts(data.posts);
-        setIsLoading(false); // Set isLoading to false when data is loaded
+        setIsLoading(false); 
       })
       .catch((error) => {
         console.error("Error fetching user data:", error);
-        setIsLoading(false); // Set isLoading to false on error as well
+        setIsLoading(false); 
       });
-    console.log(user);
+    //console.log(user);
   }, [userId]);
+
+  const handleFollowUser = async (userIdToFollow, authUserId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/follow?userId=${authUserId}&user_id_followed=${userIdToFollow}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data.message);
+      } else {
+        console.error("Follow User Error:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Follow User Error:", error);
+    }
+  };
+
+  const handeUnfollowerUser = async (userIdToFollow, authUserId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/unfollow?userId=${authUserId}&user_id_unfollowed=${userIdToFollow}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data.message);
+      } else {
+        console.error("Follow User Error:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Follow User Error:", error);
+    }
+  };
 
   return (
     <>
       <Navbar />
       <Container style={{ paddingTop: "10px" }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          {user.username}'s Profile
-        </Typography>
+        {isLoading ? (
+          <></>
+        ) : (
+          <>
+            <Typography variant="h4" component="h1" gutterBottom>
+              {user.username}'s Profile
+            </Typography>
+            <p>Followers : {user.followers.length}</p>
+            <p>Following : {user.following.length}</p>
+          </>
+        )}
+
+        <IconButton onClick={() => handleFollowUser(userId, currentauthUserId)}>
+          <PersonAddIcon />
+        </IconButton>
+
+        <IconButton
+          onClick={() => handeUnfollowerUser(userId, currentauthUserId)}
+        >
+          <PersonRemoveIcon />
+        </IconButton>
 
         <Typography variant="h5" component="h2" gutterBottom>
           Posts

@@ -30,6 +30,7 @@ export default function Navbar() {
       .then((response) => response.json())
       .then((data) => {
         setUser(data.user);
+        console.log(user);
         setIsLoading(false);
       })
       .catch((error) => {
@@ -63,7 +64,7 @@ export default function Navbar() {
                 navigate("/");
               }}
             >
-              Blog Uygulaması
+              Blog App
             </Typography>
             {loggedIn ? (
               <IconButton
