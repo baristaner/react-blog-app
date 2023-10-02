@@ -13,6 +13,8 @@ import {
   Modal,
   Box,
   TextField,
+  Avatar,
+  CardHeader,
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import BookmarkAddIcon from "@mui/icons-material/BookmarkAdd";
@@ -44,8 +46,31 @@ function PostDetails() {
     axios
       .get(`http://localhost:3000/posts/${id}`)
       .then((response) => {
-        setPost(response.data);
+        const post = response.data;
+        setPost(post);
+
+        for (const comment of post.comments) {
+          const authorId = comment.author;
+
+          axios
+            .get(`http://localhost:3000/users/${authorId}`)
+            .then((userResponse) => {
+              const authorInfo = userResponse.data;
+
+              comment.authorInfo = authorInfo;
+
+              setPost((prevPost) => ({
+                ...prevPost,
+                comments: [...prevPost.comments],
+              }));
+            })
+            .catch((userError) => {
+              console.error("Error getting data:", userError);
+            });
+        }
+
         setLoading(false);
+        console.log(post);
       })
       .catch((error) => {
         console.error("Post alınamadı:", error);
@@ -212,11 +237,70 @@ function PostDetails() {
           </div>
           <div style={{ marginTop: "10px", textAlign: "center" }}>
             <Button variant="contained" color="primary" href={`/`}>
-              Geri Dön
+              Go Back
             </Button>
           </div>
         </Card>
       </Container>
+      <div sx={{ display: "flex", alignItems: "center", marginBottom: 1 }}>
+        {post.comments.map((comment) => (
+          <CardContent key={comment._id}>
+            <Card
+              style={{
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <CardHeader
+              style={{paddingTop:"10px",paddingBottom:"0px"}}
+                avatar={
+                  <Avatar aria-label="user-avatar">
+                    {comment.authorInfo &&
+                    comment.authorInfo.user.profilePicture ? (
+                      <img
+                        src={`http://localhost:3000/${comment.authorInfo.user.profilePicture}`}
+                        alt={`${comment.authorInfo.user.username}'s Profile Picture`}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
+                    ) : (
+                      <Typography variant="h7" component="div">
+                        <strong>
+                          {comment.authorInfo
+                            ? comment.authorInfo.user.username
+                                .charAt(0)
+                                .toUpperCase()
+                            : "Unknown User"}
+                        </strong>
+                      </Typography>
+                    )}
+                  </Avatar>
+                }
+                title={
+                  <Typography variant="h7" component="div">
+                    <strong>
+                      {comment.authorInfo
+                        ? comment.authorInfo.user.username
+                        : "Loading"}
+                    </strong>
+                  </Typography>
+                }
+                subheader={new Date(comment.date).toLocaleDateString()}
+              />
+              <CardContent style={{ flexGrow: 1 }}>
+                <Typography variant="strong" component="div">
+                  {comment.text}
+                </Typography>
+              </CardContent>
+            </Card>
+          </CardContent>
+        ))}
+      </div>
+
       <Modal
         open={openModal}
         onClose={handleCloseModal}
