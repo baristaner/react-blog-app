@@ -79,7 +79,6 @@ function PostDetails() {
   }, [id]);
 
   const handleLikePost = async (authUserId, postId) => {
-    console.log(authUserId, postId);
     try {
       const response = await fetch(
         `http://localhost:3000/likepost?author=${authUserId}&postId=${postId}`,
@@ -95,10 +94,10 @@ function PostDetails() {
         const data = await response.json();
         console.log(data.message);
       } else {
-        console.error("Error Liking Post:", response.statusText);
+        console.error("Error Liking/Unliking Post:", response.statusText);
       }
     } catch (error) {
-      console.error("Error Liking Post:", error);
+      console.error("Error Liking/Unliking Post:", error);
     }
   };
 
@@ -198,7 +197,7 @@ function PostDetails() {
   return (
     <>
       <Navbar />
-      <Container maxWidth="md" style={{ paddingTop: "10px" }}>
+      <Container maxWidth="md" style={{ paddingTop: "10px",maxWidth:"100%" }}>
         <Card
           style={{
             height: "100%",
@@ -209,7 +208,7 @@ function PostDetails() {
         >
           <CardMedia
             component="img"
-            height="200"
+            height="300"
             image={`http://localhost:3000/${post.imagePath}`}
             alt={post.title}
             sx={{ objectFit: "cover" }}
@@ -224,10 +223,20 @@ function PostDetails() {
           </CardContent>
           <div style={{ display: "flex" }}>
             <div style={{ gap: "3px", marginLeft: "auto" }}>
-              <IconButton onClick={() => handleLikePost(userid_auth, id)}>
+              <IconButton
+                onClick={() => handleLikePost(userid_auth, id)}
+                color={
+                  post.likes.includes(userid_auth) ? "secondary" : "default"
+                }
+              >
                 <FavoriteIcon />
               </IconButton>
-              <IconButton onClick={() => handleSavePost(userid_auth, id)}>
+              <IconButton
+                onClick={() => handleSavePost(userid_auth, id)}
+                color={
+                  post.savedBy.includes(userid_auth) ? "secondary" : "default"
+                }
+              >
                 <BookmarkAddIcon />
               </IconButton>
               <IconButton onClick={handleOpenModal}>
@@ -253,7 +262,7 @@ function PostDetails() {
               }}
             >
               <CardHeader
-              style={{paddingTop:"10px",paddingBottom:"0px"}}
+                style={{ paddingTop: "10px", paddingBottom: "0px" }}
                 avatar={
                   <Avatar aria-label="user-avatar">
                     {comment.authorInfo &&
